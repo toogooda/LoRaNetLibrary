@@ -2,10 +2,6 @@
 #include <Arduino.h>
 #include <SPI.h>
 
-#if __has_include("Pinout.h")
-#include "Pinout.h"
-#endif
-
 // Hardware / Timeout Defaults
 #ifndef SPI_Speed
 #define SPI_Speed 500000
