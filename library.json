@@ -1,0 +1,23 @@
+{
+  "name": "LoRaNetLibrary",
+  "version": "1.0.0",
+  "description": "Unified LoRa radio driver (SX126x/Ra-01S) and binary message serialization protocol (LoraMsg) for LoRaFarmNet devices",
+  "keywords": "lora, sx126x, ra01s, MightyCore, esp32, LoRaFarmNet",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/toogooda/LoRaNetLibrary.git"
+  },
+  "authors": [
+    {
+      "name": "LoRaFarmNet Maintainer"
+    }
+  ],
+  "frameworks": "arduino",
+  "platforms": [
+    "atmelavr",
+    "espressif32"
+  ],
+  "headers": [
+    "LoRaHelper.h"
+  ]
+}
