@@ -15,8 +15,8 @@ SX126x::SX126x(int spiSelect, int reset, int busy, int txen, int rxen)
   debugPrint        = false;
   
   pinMode(SX126x_SPI_SELECT, OUTPUT);
-  if (SX126x_RESET != -1) pinMode(SX126x_RESET, OUTPUT);
-  if (SX126x_BUSY != -1) pinMode(SX126x_BUSY, INPUT);
+  pinMode(SX126x_RESET, OUTPUT);
+  pinMode(SX126x_BUSY, INPUT);
   if (SX126x_TXEN != -1) pinMode(SX126x_TXEN, OUTPUT);
   if (SX126x_RXEN != -1) pinMode(SX126x_RXEN, OUTPUT);
 
@@ -713,7 +713,7 @@ uint8_t SX126x::ReadBuffer(uint8_t *rxData, uint8_t maxLen)
   WaitForIdle();
 
   digitalWrite(SX126x_SPI_SELECT, LOW);
-  SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
+  SPI.beginTransaction(SPISettings(SPI_Speed, MSBFIRST, SPI_MODE0));
   SPI.transfer(SX126X_CMD_READ_BUFFER); // 0x1E
   SPI.transfer(offset);
   SPI.transfer(SX126X_CMD_NOP);
@@ -736,7 +736,7 @@ void SX126x::WriteBuffer(uint8_t *txData, uint8_t txDataLen)
   WaitForIdle();
 
   digitalWrite(SX126x_SPI_SELECT, LOW);
-  SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
+  SPI.beginTransaction(SPISettings(SPI_Speed, MSBFIRST, SPI_MODE0));
   SPI.transfer(SX126X_CMD_WRITE_BUFFER); // 0x0E
   SPI.transfer(0); //offset in tx fifo
   for( uint16_t i = 0; i < txDataLen; i++ )
@@ -761,7 +761,7 @@ void SX126x::WriteRegister(uint16_t reg, uint8_t* data, uint8_t numBytes, bool w
     Serial.print(reg, HEX);
   }
   digitalWrite(SX126x_SPI_SELECT, LOW);
-  SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
+  SPI.beginTransaction(SPISettings(SPI_Speed, MSBFIRST, SPI_MODE0));
 
   // send command byte
   SPI.transfer(SX126X_CMD_WRITE_REGISTER); // 0x0D
@@ -802,7 +802,7 @@ void SX126x::ReadRegister(uint16_t reg, uint8_t* data, uint8_t numBytes, bool wa
     Serial.print(reg, HEX);
   }
   digitalWrite(SX126x_SPI_SELECT, LOW);
-  SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
+  SPI.beginTransaction(SPISettings(SPI_Speed, MSBFIRST, SPI_MODE0));
 
   // send command byte
   SPI.transfer(SX126X_CMD_READ_REGISTER); // 0x1D
@@ -853,7 +853,7 @@ uint8_t SX126x::WriteCommand2(uint8_t cmd, uint8_t* data, uint8_t numBytes, bool
 
   // start transfer
   digitalWrite(SX126x_SPI_SELECT, LOW);
-  SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
+  SPI.beginTransaction(SPISettings(SPI_Speed, MSBFIRST, SPI_MODE0));
 
   // send command byte
   if(debugPrint) {
@@ -914,7 +914,7 @@ void SX126x::ReadCommand(uint8_t cmd, uint8_t* data, uint8_t numBytes, bool wait
 
   // start transfer
   digitalWrite(SX126x_SPI_SELECT, LOW);
-  SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
+  SPI.beginTransaction(SPISettings(SPI_Speed, MSBFIRST, SPI_MODE0));
 
   // send command byte
   if(debugPrint) {
