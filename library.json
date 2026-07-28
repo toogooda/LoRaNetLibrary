@@ -1,6 +1,6 @@
 {
   "name": "LoRaNetLibrary",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Unified LoRa radio driver (SX126x/Ra-01S) and binary message serialization protocol (LoraMsg) for LoRaFarmNet devices",
   "keywords": "lora, sx126x, ra01s, MightyCore, esp32, LoRaFarmNet",
   "repository": {
