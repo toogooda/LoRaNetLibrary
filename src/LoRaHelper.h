@@ -283,6 +283,8 @@ private:
   void WaitingForBusy(void);
 };
 
+extern SX126x lora;
+
 // Binary Protocol PortValue Struct
 struct PortValue {
   char type[2];
