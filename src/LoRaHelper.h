@@ -38,7 +38,8 @@
 // SX126X physical layer properties
 #define XTAL_FREQ                       ( double )32000000
 #define FREQ_DIV                        ( double )pow( 2.0, 25.0 )
-#define FREQ_STEP                       ( double )( XTAL_FREQ / FREQ_DIV )
+#define FREQ_DIV_2_25                   FREQ_DIV
+#define FREQ_STEP                       ( double )( XTAL_FREQ / FREQ_DIV_2_25 )
 
 // SX126X Model
 #define SX1261_TRANCEIVER                             0x01
@@ -131,17 +132,13 @@
 #define SX126X_REG_IQ_POLARITY_SETUP                  0x0736
 #define SX126X_REG_LORA_SYNC_WORD_MSB                 0x0740
 #define SX126X_REG_LORA_SYNC_WORD_LSB                 0x0741
-#define SX126X_REG_RANDOM_NUMBER_0                    0x0819
-#define SX126X_REG_RANDOM_NUMBER_1                    0x081A
-#define SX126X_REG_RANDOM_NUMBER_2                    0x081B
-#define SX126X_REG_RANDOM_NUMBER_3                    0x081C
-#define SX126X_REG_TX_MODULETION                      0x0889
+#define SX126X_REG_RANDOM_NUMBER_0                    0x0786
+#define SX126X_REG_RANDOM_NUMBER_1                    0x0787
+#define SX126X_REG_RANDOM_NUMBER_2                    0x0788
+#define SX126X_REG_RANDOM_NUMBER_3                    0x0789
+#define SX126X_REG_TX_MODULATION                      0x0889
 #define SX126X_REG_RX_GAIN                            0x08AC
 #define SX126X_REG_TX_CLAMP_CONFIG                    0x08D8
-#define SX126X_REG_OCP_CONFIGURATION                  0x08E7
-#define SX126X_REG_RTC_CONTROL                        0x0902
-#define SX126X_REG_XTA_TRIM                           0x0911
-#define SX126X_REG_XTB_TRIM                           0x0912
 #define SX126X_REG_DIO3_OUTPUT_VOLTAGE_CONTROL        0x0920
 #define SX126X_REG_EVENT_MASK                         0x0944
 
@@ -153,27 +150,64 @@
 #define SX126X_STANDBY_RC                             0x00
 #define SX126X_STANDBY_XOSC                           0x01
 
-#define SX126X_RX_TIMEOUT_NONE                        0x000000
-#define SX126X_RX_TIMEOUT_INF                         0xFFFFFF
+#define SX126X_REGULATOR_LDO                          0x00
+#define SX126X_REGULATOR_DC_DC                        0x01
 
-#define SX126X_TXMODE_SYNC                            0x00
-#define SX126X_TXMODE_ASYNC                           0x01
-#define SX126x_TXMODE_SYNC                            0x00
-#define SX126x_TXMODE_ASYNC                           0x01
+#define SX126X_CALIBRATE_IMAGE_OFF                    0b00000000
+#define SX126X_CALIBRATE_IMAGE_ON                     0b00000001
+#define SX126X_CALIBRATE_ADC_BULK_P_OFF               0b00000000
+#define SX126X_CALIBRATE_ADC_BULK_P_ON                0b00000010
+#define SX126X_CALIBRATE_ADC_BULK_N_OFF               0b00000000
+#define SX126X_CALIBRATE_ADC_BULK_N_ON                0b00000100
+#define SX126X_CALIBRATE_ADC_PULSE_OFF                0b00000000
+#define SX126X_CALIBRATE_ADC_PULSE_ON                 0b00001000
+#define SX126X_CALIBRATE_PLL_OFF                      0b00000000
+#define SX126X_CALIBRATE_PLL_ON                       0b00010000
+#define SX126X_CALIBRATE_RC13M_OFF                    0b00000000
+#define SX126X_CALIBRATE_RC13M_ON                     0b00100000
+#define SX126X_CALIBRATE_RC64K_OFF                    0b00000000
+#define SX126X_CALIBRATE_RC64K_ON                     0b01000000
+#define SX126X_CALIBRATE_ALL                          0b01111111
+
+#define SX126X_CALIB_BAND_430_440                     0x6B
+#define SX126X_CALIB_BAND_470_510                     0x75
+#define SX126X_CALIB_BAND_779_787                     0xC1
+#define SX126X_CALIB_BAND_863_870                     0xD7
+#define SX126X_CALIB_BAND_902_928                     0xE1
+
+#define SX126X_PA_RAMP_10U                            0x00
+#define SX126X_PA_RAMP_20U                            0x01
+#define SX126X_PA_RAMP_40U                            0x02
+#define SX126X_PA_RAMP_80U                            0x03
+#define SX126X_PA_RAMP_200U                           0x04
+#define SX126X_PA_RAMP_800U                           0x05
+#define SX126X_PA_RAMP_1700U                          0x06
+#define SX126X_PA_RAMP_3400U                          0x07
+
+#define SX126X_DIO3_OUTPUT_1_6                        0x00
+#define SX126X_DIO3_OUTPUT_1_7                        0x01
+#define SX126X_DIO3_OUTPUT_1_8                        0x02
+#define SX126X_DIO3_OUTPUT_2_2                        0x03
+#define SX126X_DIO3_OUTPUT_2_4                        0x04
+#define SX126X_DIO3_OUTPUT_2_7                        0x05
+#define SX126X_DIO3_OUTPUT_3_0                        0x06
+#define SX126X_DIO3_OUTPUT_3_3                        0x07
+
+#define RADIO_TCXO_SETUP_TIME                         5000
 
 #define SX126X_PACKET_TYPE_GFSK                       0x00
 #define SX126X_PACKET_TYPE_LORA                       0x01
 
-#define SX126X_LORA_BW_7                              0x00
-#define SX126X_LORA_BW_10                             0x08
-#define SX126X_LORA_BW_15                             0x01
-#define SX126X_LORA_BW_20                             0x09
-#define SX126X_LORA_BW_31                             0x02
-#define SX126X_LORA_BW_41                             0x0A
-#define SX126X_LORA_BW_62                             0x03
-#define SX126X_LORA_BW_125                            0x04
-#define SX126X_LORA_BW_250                            0x05
-#define SX126X_LORA_BW_500                            0x06
+#define SX126X_LORA_BW_7_8                            0x00
+#define SX126X_LORA_BW_10_4                           0x08
+#define SX126X_LORA_BW_15_6                           0x01
+#define SX126X_LORA_BW_20_8                           0x09
+#define SX126X_LORA_BW_31_25                          0x02
+#define SX126X_LORA_BW_41_7                           0x0A
+#define SX126X_LORA_BW_62_5                           0x03
+#define SX126X_LORA_BW_125_0                          0x04
+#define SX126X_LORA_BW_250_0                          0x05
+#define SX126X_LORA_BW_500_0                          0x06
 
 #define SX126X_LORA_SF_5                              0x05
 #define SX126X_LORA_SF_6                              0x06
@@ -197,25 +231,40 @@
 
 #define SX126X_LORA_CRC_OFF                           0x00
 #define SX126X_LORA_CRC_ON                            0x01
-
 #define SX126X_LORA_IQ_STANDARD                       0x00
 #define SX126X_LORA_IQ_INVERTED                       0x01
+
+#define SX126X_IRQ_TX_DONE                            0b0000000000000001
+#define SX126X_IRQ_RX_DONE                            0b0000000000000010
+#define SX126X_IRQ_PREAMBLE_DETECTED                  0b0000000000000100
+#define SX126X_IRQ_SYNC_WORD_VALID                    0b0000000000001000
+#define SX126X_IRQ_HEADER_VALID                       0b0000000000010000
+#define SX126X_IRQ_HEADER_ERR                         0b0000000000100000
+#define SX126X_IRQ_CRC_ERR                            0b0000000001000000
+#define SX126X_IRQ_CAD_DONE                           0b0000000010000000
+#define SX126X_IRQ_CAD_DETECTED                       0b0000000100000000
+#define SX126X_IRQ_TIMEOUT                            0b0000001000000000
+#define SX126X_IRQ_NONE                               0b0000000000000000
+#define SX126X_IRQ_ALL                                0b0000001111111111
+
+#define SX126X_STATUS_MODE_STDBY_RC                   0b00100000
+#define SX126X_STATUS_MODE_STDBY_XOSC                 0b00110000
+#define SX126X_STATUS_MODE_FS                         0b01000000
+#define SX126X_STATUS_MODE_RX                         0b01010000
+#define SX126X_STATUS_MODE_TX                         0b01100000
+#define SX126X_STATUS_DATA_AVAILABLE                  0b00000100
+#define SX126X_STATUS_CMD_TIMEOUT                     0b00000110
+#define SX126X_STATUS_CMD_INVALID                     0b00001000
+#define SX126X_STATUS_CMD_FAILED                      0b00001010
+#define SX126X_STATUS_TX_DONE                         0b00001100
+#define SX126X_STATUS_SPI_FAILED                      0b11111111
 
 #define SX126X_SYNC_WORD_PUBLIC                       0x3444
 #define SX126X_SYNC_WORD_PRIVATE                      0x1424
 
-#define SX126X_IRQ_TX_DONE                            0x0001
-#define SX126X_IRQ_RX_DONE                            0x0002
-#define SX126X_IRQ_PREAMBLE_DETECTED                  0x0004
-#define SX126X_IRQ_SYNC_WORD_VALID                    0x0008
-#define SX126X_IRQ_HEADER_VALID                       0x0010
-#define SX126X_IRQ_HEADER_ERR                         0x0020
-#define SX126X_IRQ_CRC_ERR                            0x0040
-#define SX126X_IRQ_CAD_DONE                           0x0080
-#define SX126X_IRQ_CAD_ACTIVITY_DETECTED              0x0100
-#define SX126X_IRQ_TIMEOUT                            0x0200
-#define SX126X_IRQ_ALL                                0x03FF
-#define SX126X_IRQ_NONE                               0x0000
+#define SX126x_TXMODE_ASYNC                           0x01
+#define SX126x_TXMODE_SYNC                            0x02
+#define SX126x_TXMODE_BACK2RX                         0x04
 
 // Default Radio Parameters
 #define RF_FREQUENCY 915000000    // Hz center frequency
@@ -230,53 +279,66 @@
 class SX126x {
 public:
   SX126x(int spiSelect, int reset, int busy, int txen = -1, int rxen = -1);
-  int16_t begin(uint32_t frequencyInHz = 915000000, int8_t txPowerInDbm = 22, float tcxoVoltage = 1.6, bool useRegulatorLDO = false);
-  int16_t Reset(void);
-  int16_t SetStandby(uint8_t standbyConfig);
-  int16_t SetSleep(uint8_t sleepConfig);
-  int16_t SetTx(uint32_t timeout);
-  int16_t SetRx(uint32_t timeout);
-  int16_t SetPacketType(uint8_t packetType);
-  int16_t SetRfFrequency(uint32_t frequencyInHz);
-  int16_t SetTxParams(int8_t txPowerInDbm, uint8_t rampTime = 0x02);
-  int16_t SetBufferBaseAddress(uint8_t txBaseAddress, uint8_t rxBaseAddress);
-  int16_t SetModulationParams(uint8_t spreadingFactor, uint8_t bandwidth, uint8_t codingRate, uint8_t lowDataRateOptimize = 0x00);
-  int16_t SetPacketParams(uint16_t preambleLength, uint8_t headerType, uint8_t payloadLength, uint8_t crcType, uint8_t invertIQ = 0x00);
-  int16_t SetDioIrqParams(uint16_t irqMask, uint16_t dio1Mask, uint16_t dio2Mask = 0, uint16_t dio3Mask = 0);
+
+  int16_t  begin(uint32_t frequencyInHz, int8_t txPowerInDbm, float tcxoVoltage = 0.0, bool useRegulatorLDO = false);
+  void     LoRaConfig(uint8_t spreadingFactor, uint8_t bandwidth, uint8_t codingRate, uint16_t preambleLength, uint8_t payloadLen, bool crcOn, bool invertIrq);
+  uint8_t  Receive(uint8_t *pData, uint16_t len);
+  bool     Send(uint8_t *pData, uint8_t len, uint8_t mode);
+  bool     ReceiveMode(void);
+  void     GetPacketStatus(int8_t *rssiPacket, int8_t *snrPacket);
+  void     SetTxPower(int8_t txPowerInDbm);
+  uint32_t GetRandomNumber(void);
+  void     DebugPrint(bool enable);
+
+  void     SetRxEnable(void);
+  void     SetTxEnable(void);
+  void     SetRx(uint32_t timeout);
+  void     SetTx(uint32_t timeoutInMs);
+  void     WaitForIdle(unsigned long timeout = 5000, const char *text = "", bool stop = false);
+
+  int16_t  Reset(void);
+  void     Wakeup(void);
+  void     SetSleep(uint8_t mode);
+  void     SetStandby(uint8_t mode);
+  void     SetRfFrequency(uint32_t frequency);
+  void     Calibrate(uint8_t calibParam);
+  void     CalibrateImage(uint32_t frequency);
+  void     SetRegulatorMode(uint8_t mode);
+  void     SetBufferBaseAddress(uint8_t txBaseAddress, uint8_t rxBaseAddress);
+  void     SetPowerConfig(int8_t power, uint8_t rampTime);
+  void     SetOvercurrentProtection(float currentLimit);
+  void     SetPaConfig(uint8_t paDutyCycle, uint8_t hpMax, uint8_t deviceSel, uint8_t paLut);
+  void     SetDioIrqParams(uint16_t irqMask, uint16_t dio1Mask, uint16_t dio2Mask, uint16_t dio3Mask);
+  void     SetStopRxTimerOnPreambleDetect(bool enable);
+  void     SetLoRaSymbNumTimeout(uint8_t SymbNum);
+  void     SetPacketType(uint8_t packetType);
+  void     SetModulationParams(uint8_t spreadingFactor, uint8_t bandwidth, uint8_t codingRate, uint8_t lowDataRateOptimize);
+  uint8_t  GetStatus(void);
   uint16_t GetIrqStatus(void);
-  int16_t ClearIrqStatus(uint16_t clearIrqParams);
-  int16_t SetDio2AsRfSwitchCtrl(uint8_t enable);
-  int16_t SetDio3AsTcxoCtrl(uint8_t tcxoVoltage, uint32_t timeout);
-  int16_t WriteRegister(uint16_t reg, uint8_t* data, uint8_t numBytes);
-  int16_t ReadRegister(uint16_t reg, uint8_t* data, uint8_t numBytes);
-  int16_t WriteBuffer(uint8_t offset, uint8_t* data, uint8_t numBytes);
-  int16_t ReadBuffer(uint8_t offset, uint8_t* data, uint8_t numBytes);
-  int16_t GetRxBufferStatus(uint8_t* payloadLength, uint8_t* rxStartBufferPointer);
-  int16_t GetPacketStatus(int8_t* rssiPacket, int8_t* snrPacket);
-  int16_t CalibrateImage(uint8_t freq1, uint8_t freq2);
-  int16_t SetPaConfig(uint8_t paDutyCycle, uint8_t hpMax, uint8_t deviceSelect = 0x00, uint8_t paLut = 0x01);
-  void LoRaConfig(uint8_t spreadingFactor, uint8_t bandwidth, uint8_t codingRate, uint16_t preambleLength, uint8_t payloadLen, bool crcOn, bool invertIq);
-  bool Send(uint8_t *data, uint8_t len, uint8_t txMode);
-  uint8_t Receive(uint8_t *data, uint8_t maxLen);
-  void SPIwriteCommand(uint8_t cmd, uint8_t* data, uint8_t numBytes);
-  void SPIreadCommand(uint8_t cmd, uint8_t* data, uint8_t numBytes);
-  void SPIwriteCommand(uint8_t cmd);
-  void FixInvertedIQ(uint8_t invertIQ);
-  void SetRfTxPower(int8_t txPowerInDbm);
-  int16_t SetRegulatorMode(uint8_t mode);
-  void DebugPrint(bool enable);
-  uint8_t GetStatus(void);
+  void     ClearIrqStatus(uint16_t irq);
+  uint8_t  GetRssiInst();
+  void     GetRxBufferStatus(uint8_t *payloadLength, uint8_t *rxStartBufferPointer);
+
+  uint8_t  ReadBuffer(uint8_t *rxData, uint8_t maxLen);
+  void     WriteBuffer(uint8_t *txData, uint8_t txDataLen);
+  void     WriteRegister(uint16_t reg, uint8_t* data, uint8_t numBytes, bool waitForBusy = true);
+  void     ReadRegister(uint16_t reg, uint8_t* data, uint8_t numBytes, bool waitForBusy = true);
+  void     WriteCommand(uint8_t cmd, uint8_t* data, uint8_t numBytes, bool waitForBusy = true);
+  uint8_t  WriteCommand2(uint8_t cmd, uint8_t* data, uint8_t numBytes, bool waitForBusy = true);
+  void     ReadCommand(uint8_t cmd, uint8_t* data, uint8_t numBytes, bool waitForBusy = true);
+  void     FixInvertedIQ(uint8_t iqConfig);
+  void     SetDio3AsTcxoCtrl(float voltage, uint32_t delay);
+  void     SetDio2AsRfSwitchCtrl(uint8_t enable);
 
 private:
-  int SX126x_SPI_SELECT;
-  int SX126x_RESET;
-  int SX126x_BUSY;
-  int SX126x_TXEN;
-  int SX126x_RXEN;
-
-  bool txActive;
-  bool debugPrint;
-  void WaitingForBusy(void);
+  uint8_t  PacketParams[6] = {0};
+  bool     txActive;
+  bool     debugPrint;
+  int      SX126x_SPI_SELECT;
+  int      SX126x_RESET;
+  int      SX126x_BUSY;
+  int      SX126x_TXEN;
+  int      SX126x_RXEN;
 };
 
 extern SX126x lora;
@@ -290,7 +352,7 @@ struct PortValue {
 // Binary Message Frame Serialization Class
 class LoraMsg {
 private:
-  static const int MAX_MSG_SIZE = 128;
+  static const int MAX_MSG_SIZE = 256;
   uint8_t message[MAX_MSG_SIZE] = { 0 };
   int currentIndex;
   static uint16_t messageCounter;
@@ -309,7 +371,7 @@ public:
   void printMessage();
   uint8_t getFromByte(const uint8_t byteNumber);
   void getFromAddress(uint8_t* address);
-  bool setPortValue(const char* portType, uint16_t value);
+  bool setPortValue(const char type[2], uint16_t newValue);
   uint16_t getMessageID();
   void encryptMessage();
   void decryptMessage();
