@@ -485,38 +485,31 @@ class SX126x {
 
 extern SX126x lora;
 
-// Binary Message Frame Serialization Class (128-Byte Standard Buffer)
+// Verbatim Original LoraMsg Class from Gateway & Nodes
 class LoraMsg {
 private:
   static const int MAX_MSG_SIZE = 128;
-  uint8_t message[MAX_MSG_SIZE];
+  uint8_t message[MAX_MSG_SIZE] = { 0 };
   int currentIndex;
   static uint16_t messageCounter;
 
 public:
-  LoraMsg(const uint8_t toAddress[6], const uint8_t fromAddress[6]);
-  LoraMsg(const uint8_t* encryptedMsg, int length);
-  
+  LoraMsg(const uint8_t* toAddress, const uint8_t* fromAddress);
+  LoraMsg(const uint8_t* encryptedMessage, byte sizeOfMsg);
   bool addPortValue(const PortValue& portValue);
-  bool addPortValue(const char type[2], uint16_t value);
-  
-  PortValue getPortValue(int index) const;
-  int numberOfPortValues() const;
-  
+  uint8_t* getMessage();
+  uint8_t getMessageLength();
+  PortValue getPortValue(int index);
+  uint8_t numberOfPortValues();
+  void printMessage();
+  uint8_t getFromByte(const uint8_t byteNumber);
   void encryptMessage();
   void decryptMessage();
-  
-  uint8_t* getMessage() { return message; }
-  const uint8_t* getMessage() const { return message; }
-  uint8_t getMessageLength() const { return currentIndex; }
-  
-  bool isForMe(const uint8_t* myAddress) const;
-  
-  uint8_t getFromByte(const uint8_t byteNumber) const;
-  void getFromAddress(uint8_t* address) const;
-  bool setPortValue(const char type[2], uint16_t newValue);
-  uint16_t getMessageID() const;
-  
-  void printMessage() const;
+  bool isForMe(const uint8_t* address);
+
+private:
+  void addAddress(const uint8_t* address);
+  uint8_t toAddress[6];     // Store toAddress for encryption/decryption
+  uint16_t getMessageID();  // Retrieve the message ID for encryption/decryption
 };
 

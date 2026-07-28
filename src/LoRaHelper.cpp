@@ -950,7 +950,7 @@ void SX126x::ReadCommand(uint8_t cmd, uint8_t* data, uint8_t numBytes, bool wait
 
 
 // ============================================================================
-// Additional Helper Method & LoraMsg Implementation
+// Additional Helper Method & Verbatim Original LoraMsg Implementation
 // ============================================================================
 
 int16_t SX126x::beginFarmDefaults() {
@@ -961,24 +961,55 @@ int16_t SX126x::beginFarmDefaults() {
   return err;
 }
 
-uint16_t LoraMsg::messageCounter = 1;
 
-LoraMsg::LoraMsg(const uint8_t toAddress[6], const uint8_t fromAddress[6]) {
+
+uint16_t LoraMsg::messageCounter = 0;
+
+// Constructor for creating a new message
+LoraMsg::LoraMsg(const uint8_t* toAddress, const uint8_t* fromAddress) {
+  memset(message, 0, MAX_MSG_SIZE);
   currentIndex = 0;
-  for (int i = 0; i < 6; i++) message[currentIndex++] = toAddress[i];
-  for (int i = 0; i < 6; i++) message[currentIndex++] = fromAddress[i];
-  
-  PortValue pmi = { { 'M', 'I' }, messageCounter++ };
-  addPortValue(pmi);
+  addAddress(toAddress);
+  addAddress(fromAddress);
+  PortValue messageID = { { 'M', 'I' }, messageCounter++ };
+  addPortValue(messageID);
+  memcpy(this->toAddress, toAddress, 6);  // Store toAddress for encryption/decryption
 }
 
-LoraMsg::LoraMsg(const uint8_t* encryptedMsg, int length) {
-  currentIndex = (length < MAX_MSG_SIZE) ? length : MAX_MSG_SIZE;
-  memcpy(message, encryptedMsg, currentIndex);
+// Constructor for receiving an already encrypted message
+LoraMsg::LoraMsg(const uint8_t* encryptedMessage, byte sizeOfMsg) {
+  for (int i = 0; i < sizeOfMsg; i++) {
+    message[i] = encryptedMessage[i];
+  }
+  currentIndex = sizeOfMsg;
+  memcpy(this->toAddress, encryptedMessage, 6);  // Extract toAddress for decryption
+
+  /* Debug output to check currentIndex and message content
+  Serial.print("Encrypted message received. Current index set to: ");
+  Serial.println(currentIndex);
+  Serial.print("Message content: ");
+  for (int i = 0; i < currentIndex; i++) {
+    if (message[i] < 0x10) Serial.print("0");
+    Serial.print(message[i], HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+  */
 }
 
+uint8_t LoraMsg::getFromByte(const uint8_t byteNumber) {
+  if (byteNumber < 6) {
+    return message[6 + byteNumber];
+  } else {
+    return 0;
+  }
+}
+
+// Add PortValue to the message
 bool LoraMsg::addPortValue(const PortValue& portValue) {
-  if (currentIndex + 4 > MAX_MSG_SIZE - 5) return false;
+  if (currentIndex + 4 > MAX_MSG_SIZE - 5) {  // -5 for end marker and end string character
+    return false;                             // Not enough space
+  }
   message[currentIndex++] = portValue.type[0];
   message[currentIndex++] = portValue.type[1];
   message[currentIndex++] = (portValue.value >> 8) & 0xFF;
@@ -986,88 +1017,109 @@ bool LoraMsg::addPortValue(const PortValue& portValue) {
   return true;
 }
 
-bool LoraMsg::addPortValue(const char type[2], uint16_t value) {
-  PortValue pv;
-  pv.type[0] = type[0];
-  pv.type[1] = type[1];
-  pv.value = value;
-  return addPortValue(pv);
+
+uint8_t* LoraMsg::getMessage() {
+  return message;
 }
 
-PortValue LoraMsg::getPortValue(int index) const {
-  PortValue pv = { { 0, 0 }, 0 };
-  int startIndex = 12 + index * 4;
-  if (startIndex + 3 < currentIndex) {
-    pv.type[0] = message[startIndex];
-    pv.type[1] = message[startIndex + 1];
-    pv.value = ((uint16_t)message[startIndex + 2] << 8) | message[startIndex + 3];
+// Get a PortValue at a specific index
+PortValue LoraMsg::getPortValue(int index) {
+  PortValue portValue;
+  int startIndex = 12 + index * 4;      // Start after addresses (12 bytes total)
+  //Serial.printf("\nGetPortValue index:%d location:%d currentIndex:%d\n",index,startIndex,currentIndex);
+  if (startIndex + 3 < currentIndex) {  // Exclude the end marker #####removed -4 as initially there is no marker
+    portValue.type[0] = message[startIndex];
+    portValue.type[1] = message[startIndex + 1];
+    portValue.value = (message[startIndex + 2] << 8) | message[startIndex + 3];
   }
-  return pv;
+  return portValue;
 }
 
-int LoraMsg::numberOfPortValues() const {
-  if (currentIndex < 16) return 0;
-  return (currentIndex - 16) / 4;
-}
-
-void LoraMsg::encryptMessage() {
-  uint16_t crc = 0xFFFF;
-  for (int i = 0; i < currentIndex; i++) {
-    crc ^= message[i];
-    for (int j = 0; j < 8; j++) {
-      if (crc & 1) crc = (crc >> 1) ^ 0xA001;
-      else crc >>= 1;
-    }
+// Get the number of PortValues in the message
+uint8_t LoraMsg::numberOfPortValues() {
+  int count = 0;
+  for (int i = 12; i < currentIndex; i += 4) {  // Exclude the end marker
+    count++;
   }
-  PortValue pcs = { { 'C', 'S' }, crc };
-  addPortValue(pcs);
+  return count;
 }
 
-void LoraMsg::decryptMessage() {
+// Get the message ID for encryption/decryption
+uint16_t LoraMsg::getMessageID() {
+  PortValue messageId = getPortValue(0);
+  return messageId.value;
 }
 
-bool LoraMsg::isForMe(const uint8_t* myAddress) const {
+// Private method to add address
+void LoraMsg::addAddress(const uint8_t* address) {
   for (int i = 0; i < 6; i++) {
-    if (message[i] != myAddress[i]) return false;
+    message[currentIndex++] = address[i];
+  }
+}
+
+// Encrypt the message starting from the fromAddress (6th byte)
+void LoraMsg::encryptMessage() {
+  uint16_t messageID = getMessageID();
+  // Encrypt fromAddress and beyond
+  for (int i = 6; i < 12; i++) {
+    message[i] = message[i] + toAddress[(i - 6) % 6] + (messageID & 0xFF);
+  }
+  for (int i = 16; i < currentIndex; i++) {  // Exclude the end marker
+    message[i] = message[i] + toAddress[(i - 6) % 6] + (messageID & 0xFF);
+  }
+}
+
+// Decrypt the message starting from the fromAddress (6th byte)
+void LoraMsg::decryptMessage() {
+  uint16_t messageID = getMessageID();
+  // Decrypt fromAddress and beyond
+  for (int i = 6; i < 12; i++) {
+    message[i] = message[i] - toAddress[(i - 6) % 6] - (messageID & 0xFF);
+  }
+  for (int i = 16; i < currentIndex; i++) {  // Exclude the end marker
+    message[i] = message[i] - toAddress[(i - 6) % 6] - (messageID & 0xFF);
+  }
+}
+
+// Check if the message is for the given address
+bool LoraMsg::isForMe(const uint8_t* address) {
+  for (int i = 0; i < 6; i++) {
+    if (message[i] != address[i]) {
+      return false;
+    }
   }
   return true;
 }
 
-uint8_t LoraMsg::getFromByte(const uint8_t byteNumber) const {
-  if (byteNumber < 6) {
-    return message[6 + byteNumber];
-  }
-  return 0;
+uint8_t LoraMsg::getMessageLength() {
+  return currentIndex;
 }
 
-void LoraMsg::getFromAddress(uint8_t* address) const {
-  if (address != nullptr) {
-    for (int i = 0; i < 6; i++) {
-      address[i] = message[6 + i];
-    }
+// Print the message in a detailed format
+void LoraMsg::printMessage() {
+  Serial.print("To: ");
+  for (int i = 0; i < 6; i++) {
+    if (message[i] < 0x10) Serial.print("0");  // Ensure two digits for each byte
+    Serial.print(message[i], HEX);
   }
-}
+  Serial.print(" ");
 
-bool LoraMsg::setPortValue(const char type[2], uint16_t newValue) {
-  int num = numberOfPortValues();
-  for (int i = 0; i < num; i++) {
-    int startIndex = 12 + i * 4;
-    if (message[startIndex] == type[0] && message[startIndex + 1] == type[1]) {
-      message[startIndex + 2] = (newValue >> 8) & 0xFF;
-      message[startIndex + 3] = newValue & 0xFF;
-      return true;
-    }
+  Serial.print("From: ");
+  for (int i = 6; i < 12; i++) {
+    if (message[i] < 0x10) Serial.print("0");  // Ensure two digits for each byte
+    Serial.print(message[i], HEX);
   }
-  return false;
-}
+  Serial.print(" ");
 
-uint16_t LoraMsg::getMessageID() const {
-  PortValue p = getPortValue(0);
-  if (p.type[0] == 'M' && p.type[1] == 'I') {
-    return p.value;
+  //Serial.printf("#of PortVs:%d\n", numberOfPortValues());
+
+  for (int i = 0; i < numberOfPortValues(); i++) {
+    PortValue portValue = getPortValue(i);
+    Serial.print(portValue.type[0]);
+    Serial.print(portValue.type[1]);
+    Serial.print(": ");
+    Serial.print(portValue.value);
+    Serial.print(" ");
   }
-  return 0;
-}
-
-void LoraMsg::printMessage() const {
+  //Serial.println("");
 }
