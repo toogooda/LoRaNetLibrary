@@ -226,7 +226,8 @@ public:
   int16_t WriteBuffer(uint8_t offset, uint8_t* data, uint8_t numBytes);
   int16_t ReadBuffer(uint8_t offset, uint8_t* data, uint8_t numBytes);
   int16_t GetRxBufferStatus(uint8_t* payloadLength, uint8_t* rxStartBufferPointer);
-  int16_t GetPacketStatus(int8_t* rssiPacket, int8_t* snrPacket);
+  uint8_t GetPacketStatus(int8_t* rssiPacket, int8_t* snrPacket);
+  void SetOvercurrentProtection(float currentLimit);
   int16_t Calibrate(uint8_t calibParam);
   int16_t SetPaConfig(uint8_t paDutyCycle, uint8_t hpMax, uint8_t deviceSelect = 0x00, uint8_t paLut = 0x01);
   void LoRaConfig(uint8_t spreadingFactor, uint8_t bandwidth, uint8_t codingRate, uint16_t preambleLength, uint8_t payloadLen, bool crcOn = true, bool invertIq = false);
