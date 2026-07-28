@@ -1123,3 +1123,30 @@ void LoraMsg::printMessage() {
   }
   //Serial.println("");
 }
+
+bool LoraMsg::setPortValue(const char type[2], uint16_t newValue) {
+  int num = numberOfPortValues();
+  for (int i = 0; i < num; i++) {
+    int startIndex = 12 + i * 4;
+    if (message[startIndex] == type[0] && message[startIndex + 1] == type[1]) {
+      message[startIndex + 2] = (newValue >> 8) & 0xFF;
+      message[startIndex + 3] = newValue & 0xFF;
+      return true;
+    }
+  }
+  return false;
+}
+
+bool LoraMsg::setPortValue(const PortValue& portValue) {
+  return setPortValue(portValue.type, portValue.value);
+}
+
+void LoraMsg::getFromAddress(uint8_t* address) {
+  if (address != nullptr) {
+    for (int i = 0; i < 6; i++) {
+      address[i] = message[6 + i];
+    }
+  }
+}
+
+

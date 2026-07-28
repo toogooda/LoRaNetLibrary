@@ -503,13 +503,16 @@ public:
   uint8_t numberOfPortValues();
   void printMessage();
   uint8_t getFromByte(const uint8_t byteNumber);
+  void getFromAddress(uint8_t* address);
   void encryptMessage();
   void decryptMessage();
   bool isForMe(const uint8_t* address);
+  uint16_t getMessageID();  // Retrieve the message ID for encryption/decryption
+  bool setPortValue(const char type[2], uint16_t newValue);
+  bool setPortValue(const PortValue& portValue);
 
 private:
   void addAddress(const uint8_t* address);
   uint8_t toAddress[6];     // Store toAddress for encryption/decryption
-  uint16_t getMessageID();  // Retrieve the message ID for encryption/decryption
 };
 
