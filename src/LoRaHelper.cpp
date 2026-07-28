@@ -19,12 +19,13 @@ SX126x::SX126x(int spiSelect, int reset, int busy, int txen, int rxen)
   if (SX126x_BUSY != -1) pinMode(SX126x_BUSY, INPUT);
   if (SX126x_TXEN != -1) pinMode(SX126x_TXEN, OUTPUT);
   if (SX126x_RXEN != -1) pinMode(SX126x_RXEN, OUTPUT);
+
+  SPI.begin();
 }
 
 
 int16_t SX126x::begin(uint32_t frequencyInHz, int8_t txPowerInDbm, float tcxoVoltage, bool useRegulatorLDO) 
 {
-  SPI.begin();
   //Serial.println("begin");
   //Serial.print("debugPrint=");
   //Serial.println(debugPrint);
