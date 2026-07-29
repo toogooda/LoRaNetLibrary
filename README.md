@@ -11,10 +11,5 @@ Unified PlatformIO & Arduino library for LoRa radio communication (`SX126x`/`Ra-
 Add to `platformio.ini`:
 ```ini
 lib_deps =
-    symlink://../../Libraries/LoRaNetLibrary
-```
-Or for production GitHub remotes:
-```ini
-lib_deps =
     https://github.com/toogooda/LoRaNetLibrary.git
 ```
