@@ -773,7 +773,7 @@ void SX126x::WriteRegister(uint16_t reg, uint8_t* data, uint8_t numBytes, bool w
     Serial.print(" DataOut: ");
   }
   for(uint8_t n = 0; n < numBytes; n++) {
-    uint8_t in = SPI.transfer(data[n]);
+    SPI.transfer(data[n]);
     if(debugPrint) {
       Serial.print(data[n], HEX);
       Serial.print(" ");
