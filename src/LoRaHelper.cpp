@@ -51,10 +51,14 @@ int16_t SX126x::begin(uint32_t frequencyInHz, int8_t txPowerInDbm, float tcxoVol
   uint8_t wk[2];
   ReadRegister(SX126X_REG_LORA_SYNC_WORD_MSB, wk, 2); // 0x0740
   uint16_t syncWord = (wk[0] << 8) + wk[1];
-  //Serial.print("syncWord=0x");
-  //Serial.println(syncWord, HEX);
+  if (debugPrint) {
+    Serial.print("syncWord=0x");
+    Serial.println(syncWord, HEX);
+  }
   if (syncWord != SX126X_SYNC_WORD_PUBLIC && syncWord != SX126X_SYNC_WORD_PRIVATE) {
-    //Serial.println("SX126x error, maybe no SPI connection");
+    if (debugPrint) {
+      Serial.println("SX126x error, maybe no SPI connection");
+    }
     return ERR_INVALID_MODE;
   }
 
