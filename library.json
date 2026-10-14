@@ -15,7 +15,8 @@
   "frameworks": "arduino",
   "platforms": [
     "atmelavr",
-    "espressif32"
+    "espressif32",
+    "ststm32"
   ],
   "headers": [
     "LoRaHelper.h"
